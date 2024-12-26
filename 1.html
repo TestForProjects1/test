@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Проекты</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            padding: 20px;
+            gap: 20px;
+        }
+        .project {
+            flex: 0 0 auto;
+            text-align: center;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            width: 200px;
+            position: relative;
+        }
+        .project img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .project p {
+            font-size: 1rem;
+            margin: 10px 0;
+            color: #333;
+        }
+        .description {
+            display: none;
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 10px;
+        }
+        .toggle-description {
+            margin-top: 10px;
+            cursor: pointer;
+            background-color: #0088cc;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2rem;
+            color: white;
+            display: block;
+            margin-left: auto; /* Центрирование кнопки по горизонтали */
+            margin-right: auto; /* Центрирование кнопки по горизонтали */
+        }
+        .toggle-description:hover {
+            background-color: #005f99;
+        }
+        .toggle-description:before {
+            content: "↓"; /* Стрелочка вниз */
+        }
+        .show-description .toggle-description:before {
+            content: "↑"; /* Стрелочка вверх */
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel" id="carousel"></div>
+    <script>
+        // Пример данных проектов
+        const projects = [
+            { title: "Проект 1", image_url: "https://via.placeholder.com/200x150", description: "Описание проекта 1" },
+            { title: "Проект 2", image_url: "https://via.placeholder.com/200x150", description: "Описание проекта 2" },
+            { title: "Проект 3", image_url: "https://via.placeholder.com/200x150", description: "Описание проекта 3" }
+        ];
+
+        const carousel = document.getElementById("carousel");
+
+        projects.forEach((project, index) => {
+            const projectDiv = document.createElement("div");
+            projectDiv.className = "project";
+            projectDiv.innerHTML = `
+                <img src="${project.image_url}" alt="${project.title}">
+                <p>${project.title}</p>
+                <div class="description">${project.description}</div>
+                <button class="toggle-description" onclick="toggleDescription(${index})"></button>
+            `;
+            carousel.appendChild(projectDiv);
+        });
+
+        // Функция для переключения видимости описания
+        function toggleDescription(index) {
+            const projectDiv = document.getElementsByClassName("project")[index];
+            const description = projectDiv.querySelector(".description");
+            const toggleButton = projectDiv.querySelector(".toggle-description");
+
+            description.style.display = description.style.display === "block" ? "none" : "block";
+            toggleButton.classList.toggle("show-description");
+        }
+
+        function sendData(index) {
+            const project = projects[index];
+            Telegram.WebApp.sendData(JSON.stringify({
+                title: project.title,
+                description: project.description
+            })); // Отправка данных в бот
+        }
+    </script>
+</body>
+</html>
