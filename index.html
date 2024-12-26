@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +11,16 @@
             margin: 0;
             padding: 0;
             background-color: #f9f9f9;
+            overflow-x: hidden;
         }
+
         .carousel {
             display: flex;
             overflow-x: auto;
             padding: 20px;
             gap: 20px;
         }
+
         .project {
             flex: 0 0 auto;
             text-align: center;
@@ -28,55 +31,103 @@
             padding: 15px;
             width: 200px;
             position: relative;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            max-height: 250px;
         }
+
+        .project.expanded {
+            max-height: 600px;
+        }
+
         .project img {
             width: 100%;
             height: 150px;
             object-fit: cover;
             border-radius: 8px;
         }
+
         .project p {
             font-size: 1rem;
             margin: 10px 0;
             color: #333;
         }
-        .description {
-            display: none;
-            font-size: 0.9rem;
-            color: #555;
+
+        /* Фиксированное пространство для стрелки */
+        .arrow-container {
+            height: 10px; /* Фиксированная высота блока */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-top: 10px;
         }
-        .toggle-description {
-            margin-top: 10px;
-            cursor: pointer;
+
+        .arrow {
             background-color: #0088cc;
-            border: none;
             border-radius: 50%;
             width: 30px;
             height: 30px;
-            font-size: 1.2rem;
-            color: white;
-            display: block;
-            margin-left: auto; /* Центрирование кнопки по горизонтали */
-            margin-right: auto; /* Центрирование кнопки по горизонтали */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .toggle-description:hover {
+
+        .arrow:hover {
             background-color: #005f99;
         }
-        .toggle-description:before {
-            content: "↓"; /* Стрелочка вниз */
+
+        .arrow::before {
+            content: "↓";
+            color: white;
+            font-size: 18px;
         }
-        .show-description .toggle-description:before {
-            content: "↑"; /* Стрелочка вверх */
+
+        .description {
+            display: none;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        .description.active {
+            display: block;
+        }
+
+        /* Мобильная версия */
+        @media (max-width: 768px) {
+            .project {
+                width: 160px;
+            }
+
+            .arrow {
+                width: 25px;
+                height: 25px;
+            }
+
+            .arrow::before {
+                font-size: 14px;
+            }
+        }
+
+        /* Десктопная версия */
+        @media (min-width: 769px) {
+            .carousel {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="carousel" id="carousel"></div>
     <script>
-        // Пример данных проектов
         const projects = [
-            { title: "Проект 1", image_url: "https://via.placeholder.com/200x150", description: "Описание проекта 1" },
+            {
+                title: "Комплекс развлекательно-просветительских мероприятий Грань",
+                image_url: "https://i.postimg.cc/gJvg96Fp/temp-Imageyjc-So-U.avif",
+                description: "Комплекс развлекательно-просветительских мероприятий «Грань» — проект, направленный на развитие навыков устного счета, а также критического и аналитического мышления у обучающихся 4-8 классов Саратовской области. В рамках реализации проекта была разработана настольная игра «Грань», которая распространялась на выездных мероприятиях."
+            },
             { title: "Проект 2", image_url: "https://via.placeholder.com/200x150", description: "Описание проекта 2" },
             { title: "Проект 3", image_url: "https://via.placeholder.com/200x150", description: "Описание проекта 3" }
         ];
@@ -89,28 +140,34 @@
             projectDiv.innerHTML = `
                 <img src="${project.image_url}" alt="${project.title}">
                 <p>${project.title}</p>
-                <div class="description">${project.description}</div>
-                <button class="toggle-description" onclick="toggleDescription(${index})"></button>
+                <div class="arrow-container">
+                    <div class="arrow" onclick="toggleDescription(${index})"></div>
+                </div>
+                <div class="description" id="description-${index}">${project.description}</div>
             `;
             carousel.appendChild(projectDiv);
         });
 
-        // Функция для переключения видимости описания
         function toggleDescription(index) {
-            const projectDiv = document.getElementsByClassName("project")[index];
-            const description = projectDiv.querySelector(".description");
-            const toggleButton = projectDiv.querySelector(".toggle-description");
+            const description = document.getElementById(`description-${index}`);
+            const project = description.closest('.project');
+            const allProjects = document.querySelectorAll('.project');
 
-            description.style.display = description.style.display === "block" ? "none" : "block";
-            toggleButton.classList.toggle("show-description");
-        }
+            allProjects.forEach((proj) => {
+                if (proj !== project) {
+                    proj.classList.remove('expanded');
+                    const desc = proj.querySelector('.description');
+                    if (desc) desc.classList.remove('active');
+                }
+            });
 
-        function sendData(index) {
-            const project = projects[index];
-            Telegram.WebApp.sendData(JSON.stringify({
-                title: project.title,
-                description: project.description
-            })); // Отправка данных в бот
+            if (description.classList.contains('active')) {
+                description.classList.remove('active');
+                project.classList.remove('expanded');
+            } else {
+                description.classList.add('active');
+                project.classList.add('expanded');
+            }
         }
     </script>
 </body>
